@@ -64,8 +64,6 @@ class img {
 	// if alt is empty, setup file name - bad idea ;)
 	if (empty($params['alt'])) $params['alt'] = basename($source);
 
-	$dst['file'] = 'images/t/test.jpg';
-
 	if (is_numeric($params['longside']))
 	    if ($src['width'] < $src['height']) {
 		$dst['height']	= $params['longside'];
@@ -98,6 +96,21 @@ class img {
 		$src['height'] = round($dst['height']*$width_ratio);
 	    }
 	}
+
+
+
+	// create destination directory
+	$dir = $this->base_path;
+	if (empty($params['longside']))
+	    $dir .= "{$dst['width']}x{$dst['height']}";
+	else
+	    $dir .= "{$params['longside']}";
+
+	if (!is_dir($dir)) mkdir($dir);
+
+	$dst['file'] = $dir . "/" . basename($source);
+
+	if (file_exists($dst['file'])) return "<img src=\"{$this->base_url}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\"/>";
 
 	// create dst img
 	switch ($info[2]) {
@@ -133,6 +146,9 @@ class img {
 
 	$dst['type'] = $info[2];
 
+
+
+
 	switch ($dst['type']) {
 	    case 1:
 		imagetruecolortopalette($src['image'], false, 256);
@@ -151,7 +167,7 @@ class img {
 	imagedestroy($dst['image']);
 	imagedestroy($src['image']);
 
-	echo "<img src=\"{$dst['file']}\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\"/>";
+	return "<img src=\"{$this->base_url}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\"/>";
 
 	/*
           Array
@@ -237,4 +253,3 @@ class img {
 			return $img;
 			}
 		}
-
