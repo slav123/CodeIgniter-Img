@@ -10,6 +10,7 @@
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
 * Created:  07-02-2011
+* Last update: 08-02-2011
 *
 * Description:  Modified auth system based on redux_auth with extensive customization.  This is basically what Redux Auth 2 should be.
 * Original Author name has been kept but that does not mean that the method has not been modified.
@@ -27,10 +28,15 @@ class img {
     **/
     protected $ci;
 
+    public $base = '';
+
     function __construct() {
 	$this->ci =& get_instance();
 	$this->ci->load->config('img', TRUE);
         // Do something with $params
+
+	$this->base_path = $this->ci->config->item('base_path', 'img');
+	$this->base_url = $this->ci->config->item('base_url', 'img');
     }
 
     function rimg($source, $params, $oi = true) {
