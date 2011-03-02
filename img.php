@@ -10,7 +10,7 @@
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
 * Created:  07-02-2011
-* Last update: 08-02-2011
+* Last update: 02-03-2011
 *
 * Description:  Modified auth system based on redux_auth with extensive customization.  This is basically what Redux Auth 2 should be.
 * Original Author name has been kept but that does not mean that the method has not been modified.
@@ -40,10 +40,26 @@ class img {
     }
 
     function rimg($source, $params, $oi = true) {
-	if (!file_exists($source))
-	    return false;
 
-	$info = getimagesize($source);
+	if (file_exists($this->base_path . $source))
+	    $source = $this->base_path . $source;
+	else {
+	    $path_parts = pathinfo($source);
+	    $source = $path_parts['dirname'] .'/' . $path_parts['filename'];
+	}
+
+	if (!is_file($source)) {
+	    return "no image: " . basename($source);
+	    die;
+	}
+
+
+	$info = @getimagesize($source);
+
+	if (empty($info)) {
+	    return "not image";
+	    die;
+	}
 
 	$src['width'] = $info[0];
 	$src['height'] = $info[1];
@@ -99,18 +115,26 @@ class img {
 
 
 
-	// create destination directory
-	$dir = $this->base_path;
+	// create destination directory width x height or longside
 	if (empty($params['longside']))
-	    $dir .= "{$dst['width']}x{$dst['height']}";
+	    $dir = "{$dst['width']}x{$dst['height']}";
 	else
-	    $dir .= "{$params['longside']}";
+	    $dir = $params['longside'];
 
-	if (!is_dir($dir)) mkdir($dir);
+	// check if dest directory exists
+	if (!is_dir($this->base_path . $dir)) mkdir($this->base_path . $dir);
 
-	$dst['file'] = $dir . "/" . basename($source);
+	// full path to final file
+	$dst['file'] = $this->base_path . $dir . "/" . basename($source);
 
-	if (file_exists($dst['file'])) return "<img src=\"{$this->base_url}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\"/>";
+
+	$ep = '';
+	// extra parameters
+	if (!empty($params['class']))
+	    $ep .= "class=\"{$params['class']}\"";
+
+	// if file exists - return img info
+	if (file_exists($dst['file'])) return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
 	// create dst img
 	switch ($info[2]) {
@@ -147,8 +171,6 @@ class img {
 	$dst['type'] = $info[2];
 
 
-
-
 	switch ($dst['type']) {
 	    case 1:
 		imagetruecolortopalette($src['image'], false, 256);
@@ -167,7 +189,7 @@ class img {
 	imagedestroy($dst['image']);
 	imagedestroy($src['image']);
 
-	return "<img src=\"{$this->base_url}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\"/>";
+	return "<img src=\"{$this->base_url}/{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
 	/*
           Array
