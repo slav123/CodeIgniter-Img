@@ -10,12 +10,11 @@
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
 * Created:  07-02-2011
-* Last update: 02-03-2011
+* Last update: 30-06-2011
 *
-* Description:  Modified auth system based on redux_auth with extensive customization.  This is basically what Redux Auth 2 should be.
-* Original Author name has been kept but that does not mean that the method has not been modified.
+* Description:  Simple library to create "thumbnails" in fly
 *
-* Requirements: PHP5 or above
+* Requirements: PHP5 or above, GD
 *
 */
 
@@ -68,7 +67,7 @@ class img {
 	$dst = array('offset_w' => 0, 'offset_h' => 0);
 
 	// default values, null them to avoid empty indexes later
-	$def = array('longside','shortside','crop', 'width', 'height', 'sharpen');
+	$def = array('longside','shortside','crop', 'width', 'height', 'sharpen', 'nocache');
 	foreach ($def as $v) {
 	    if (!isset($params[$v])) $params[$v] = null;
 	}
@@ -99,6 +98,11 @@ class img {
 	    }
 	}
 
+	$dst_y = $dst_x = 0;
+
+	$dst['swidth'] = $dst['width'];
+	$dst['sheight'] = $dst['height'];
+
 	// crop yes / no
 	if($params['crop'] == true) {
 	    $width_ratio = $src['width']/$dst['width'];
@@ -111,6 +115,26 @@ class img {
 		$dst['offset_h'] = round(($src['height']-$dst['height']*$width_ratio)/2);
 		$src['height'] = round($dst['height']*$width_ratio);
 	    }
+	} else if (!isset($params['longside'])) {
+
+	    $width_ratio = $src['width']/$dst['width'];
+	    $height_ratio = $src['height']/$dst['height'];
+
+	    $dst['width'] = $params['width'];
+	    $dst['height'] = $params['height'];
+
+	    // if ($params['longside']) $dst['width'] = $dst['height'] = $params['longside'];
+
+	    if ($width_ratio > $height_ratio) {
+		$dst['sheight'] = round($src['height'] / $width_ratio);
+		$dst_y = ($dst['height'] - $dst['sheight']) / 2;
+		$dst['swidth'] = $dst['width'];
+	    } else {
+		$dst['swidth'] = round($src['width'] / $height_ratio);
+		$dst_x = ($dst['width'] - $dst['swidth']) / 2;
+		$dst['sheight'] = $dst['height'];
+	    }
+
 	}
 
 
@@ -134,7 +158,7 @@ class img {
 	    $ep .= "class=\"{$params['class']}\"";
 
 	// if file exists - return img info
-	if (file_exists($dst['file'])) return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
+	if (file_exists($dst['file']) && $params['nocache'] == false) return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
 	// create dst img
 	switch ($info[2]) {
@@ -149,12 +173,20 @@ class img {
 	    break;
 	}
 
+	if (empty($params['color'])) $params['color'] = array(255,255,255);
+
 	if ($dst['width']*4 < $src['width'] AND $dst['height']*4 < $src['height']) {
 	    $_TMP['width'] = round($dst['width']*4);
 	    $_TMP['height'] = round($dst['height']*4);
 
 	    $_TMP['image'] = imagecreatetruecolor($_TMP['width'], $_TMP['height']);
-	    imagecopyresized($_TMP['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $_TMP['width'], $_TMP['height'], $src['width'], $src['height']);
+
+	    if ($params['crop'] == false) {
+	        $color = imagecolorallocate($_TMP['image'], $params['color'][0], $params['color'][1], $params['color'][2]);
+	        imagefill($_TMP['image'], 0, 0, $color);
+	    }
+
+	    imagecopyresized($_TMP['image'], $src['image'], $dst_x, $dst_y, $dst['offset_w'], $dst['offset_h'], $_TMP['width'], $_TMP['height'], $src['width'], $src['height']);
 	    $src['image'] = $_TMP['image'];
 	    $src['width'] = $_TMP['width'];
 	    $src['height'] = $_TMP['height'];
@@ -164,8 +196,17 @@ class img {
 	    unset($_TMP['image']);
 	}
 
+
 	$dst['image'] = imagecreatetruecolor($dst['width'], $dst['height']);
-	imagecopyresampled($dst['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $dst['width'], $dst['height'], $src['width'], $src['height']);
+
+
+
+	if ($params['crop'] == false) {
+	    $color = imagecolorallocate($dst['image'], $params['color'][0], $params['color'][1], $params['color'][2]);
+	    imagefill($dst['image'], 0, 0, $color);
+	}
+
+	imagecopyresampled($dst['image'], $src['image'], $dst_x, $dst_y, $dst['offset_w'], $dst['offset_h'], $dst['swidth'], $dst['sheight'], $src['width'], $src['height']);
 	if ($params['sharpen'] != false) $dst['image'] = $this->UnsharpMask($dst['image'],80,.5,3);
 
 	$dst['type'] = $info[2];

@@ -9,9 +9,9 @@ by Slawomir Jasinski
 
 Hey everybody,
 
-Library is bases on excelent * Smarty plugin "Thumb" * created in 2005 by 2005 Christoph Erdmann.
+Library is bases on excellent * Smarty plugin "Thumb" * created in 2005 by 2005 Christoph Erdmann.
 My version is a little bit different, I'm using core from Thumb, and some modification which
-gives me more flexibiliy to work with it.
+gives me more flexibility to work with it.
 
 DOCUMENTATION:
 Documentation is located at https://github.com/slav123/CodeIgniter-Img/wiki
