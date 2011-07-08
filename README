@@ -9,7 +9,7 @@ by Slawomir Jasinski
 
 Hey everybody,
 
-Library is based on excellent * Smarty plugin "Thumb" * created in 2005 by 2005 Christoph Erdmann.
+Library is based on excellent * Smarty plugin "Thumb" * created in 2005 by Christoph Erdmann.
 My version is a little bit different, I'm using core from Thumb, and some modification which
 gives me more flexibility to work with it.
 
