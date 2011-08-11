@@ -3,43 +3,53 @@
 * Name:  Img
 *
 * Author: Slawomir Jasinski
-*		  slav123@gmail.com
+*	slav123@gmail.com
 *         @slavomirj
 *
 *
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
-* Created:  07-02-2011
-* Last update: 30-06-2011
+* Created:  7 Feb 2011
+* Last update: 11 Aug 2011
 *
-* Description:  Simple library to create "thumbnails" in fly
+* Description:  CodeIgniter library to generate high quality thumbnails
 *
-* Requirements: PHP5 or above, GD
+* Library is based on excellent * Smarty plugin “Thumb” * created in 2005 by Christoph Erdmann.
+* This version is a little bit different, we are using core from Thumb, and some modification
+* which gives more flexibility to work with it.
+*
+* Requirements: PHP5 or above
+* GD module with freetype
 *
 */
 
 class img {
 
-    /**
-    * CodeIgniter global
-    *
-    * @var string
-    **/
+
     protected $ci;
 
     public $base = '';
 
-    function __construct() {
+    public function __construct() {
 	$this->ci =& get_instance();
 	$this->ci->load->config('img', TRUE);
-        // Do something with $params
 
 	$this->base_path = $this->ci->config->item('base_path', 'img');
 	$this->base_url = $this->ci->config->item('base_url', 'img');
     }
 
-    function rimg($source, $params, $oi = true) {
+    /**
+     *
+     *	main function
+     *
+     *	@param string $source full path to image
+     *	@params array $params img params
+     *	@oi boolean $oi cache rewrite
+     *
+     **/
+    public function rimg($source, $params, $oi = true) {
 
+	// check if file exists, and grab full path
 	if (file_exists($this->base_path . $source))
 	    $source = $this->base_path . $source;
 	else {
@@ -52,7 +62,7 @@ class img {
 	    die;
 	}
 
-
+	// retr file info
 	$info = @getimagesize($source);
 
 	if (empty($info)) {
@@ -79,6 +89,7 @@ class img {
 	// if alt is empty, setup file name - bad idea ;)
 	if (empty($params['alt'])) $params['alt'] = basename($source);
 
+	// scale image according to lang/short side
 	if (is_numeric($params['longside']))
 	    if ($src['width'] < $src['height']) {
 		$dst['height']	= $params['longside'];
@@ -98,6 +109,7 @@ class img {
 	    }
 	}
 
+	// dst param reset
 	$dst_y = $dst_x = 0;
 
 	$dst['swidth'] = $dst['width'];
@@ -116,14 +128,11 @@ class img {
 		$src['height'] = round($dst['height']*$width_ratio);
 	    }
 	} else if (!isset($params['longside'])) {
-
 	    $width_ratio = $src['width']/$dst['width'];
 	    $height_ratio = $src['height']/$dst['height'];
 
 	    $dst['width'] = $params['width'];
 	    $dst['height'] = $params['height'];
-
-	    // if ($params['longside']) $dst['width'] = $dst['height'] = $params['longside'];
 
 	    if ($width_ratio > $height_ratio) {
 		$dst['sheight'] = round($src['height'] / $width_ratio);
@@ -134,10 +143,7 @@ class img {
 		$dst_x = ($dst['width'] - $dst['swidth']) / 2;
 		$dst['sheight'] = $dst['height'];
 	    }
-
 	}
-
-
 
 	// create destination directory width x height or longside
 	if (empty($params['longside']))
@@ -151,14 +157,14 @@ class img {
 	// full path to final file
 	$dst['file'] = $this->base_path . $dir . "/" . basename($source);
 
-
 	$ep = '';
 	// extra parameters
 	if (!empty($params['class']))
 	    $ep .= "class=\"{$params['class']}\"";
 
-	// if file exists - return img info
-	if (file_exists($dst['file']) && $params['nocache'] == false) return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
+	// if file already exists - return finish job
+	if (file_exists($dst['file']) && $params['nocache'] == false)
+	    return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
 	// create dst img
 	switch ($info[2]) {
@@ -173,8 +179,10 @@ class img {
 	    break;
 	}
 
+	// if no background color, setup ad white
 	if (empty($params['color'])) $params['color'] = array(255,255,255);
 
+	// check dst image sie is bigger then source
 	if ($dst['width']*4 < $src['width'] AND $dst['height']*4 < $src['height']) {
 	    $_TMP['width'] = round($dst['width']*4);
 	    $_TMP['height'] = round($dst['height']*4);
@@ -196,21 +204,23 @@ class img {
 	    unset($_TMP['image']);
 	}
 
-
+	// create dst image
 	$dst['image'] = imagecreatetruecolor($dst['width'], $dst['height']);
 
-
-
+	// crop or not
 	if ($params['crop'] == false) {
 	    $color = imagecolorallocate($dst['image'], $params['color'][0], $params['color'][1], $params['color'][2]);
 	    imagefill($dst['image'], 0, 0, $color);
 	}
 
 	imagecopyresampled($dst['image'], $src['image'], $dst_x, $dst_y, $dst['offset_w'], $dst['offset_h'], $dst['swidth'], $dst['sheight'], $src['width'], $src['height']);
-	if ($params['sharpen'] != false) $dst['image'] = $this->UnsharpMask($dst['image'],80,.5,3);
+	
+	// sharpen mask
+	if ($params['sharpen'] != false)
+	    $dst['image'] = $this->UnsharpMask($dst['image'],80,.5,3);
 
+	// create same type as source
 	$dst['type'] = $info[2];
-
 
 	switch ($dst['type']) {
 	    case 1:
@@ -232,87 +242,68 @@ class img {
 
 	return "<img src=\"{$this->base_url}/{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
-	/*
-          Array
-(
-    [0] =&gt; 800
-    [1] =&gt; 600
-    [2] =&gt; 2
-    [3] =&gt; width="800" height="600"
-    [bits] =&gt; 8
-    [channels] =&gt; 3
-    [mime] =&gt; image/jpeg
-)
-	*/
-
-
-
     }
 
     private function UnsharpMask($img, $amount, $radius, $threshold) {
-			// Attempt to calibrate the parameters to Photoshop:
-			if ($amount > 500) $amount = 500;
-			$amount = $amount * 0.016;
-			if ($radius > 50) $radius = 50;
-			$radius = $radius * 2;
-			if ($threshold > 255) $threshold = 255;
+	// Attempt to calibrate the parameters to Photoshop:
+	if ($amount > 500) $amount = 500;
+	$amount = $amount * 0.016;
+	if ($radius > 50) $radius = 50;
+	$radius = $radius * 2;
+	if ($threshold > 255) $threshold = 255;
+    
+	$radius = abs(round($radius)); 	// Only integers make sense.
+	if ($radius == 0) {	return $img; imagedestroy($img); break;	}
+	$w = imagesx($img); $h = imagesy($img);
+	$imgCanvas = $img;
+	$imgCanvas2 = $img;
+	$imgBlur = imagecreatetruecolor($w, $h);
+    
+	// Gaussian blur matrix:
+	//	1	2	1
+	//	2	4	2
+	//	1	2	1
+    
+	// Move copies of the image around one pixel at the time and merge them with weight
+	// according to the matrix. The same matrix is simply repeated for higher radii.
+	for ($i = 0; $i < $radius; $i++) {
+	    imagecopy	  ($imgBlur, $imgCanvas, 0, 0, 1, 1, $w - 1, $h - 1); // up left
+	    imagecopymerge ($imgBlur, $imgCanvas, 1, 1, 0, 0, $w, $h, 50); // down right
+	    imagecopymerge ($imgBlur, $imgCanvas, 0, 1, 1, 0, $w - 1, $h, 33.33333); // down left
+	    imagecopymerge ($imgBlur, $imgCanvas, 1, 0, 0, 1, $w, $h - 1, 25); // up right
+	    imagecopymerge ($imgBlur, $imgCanvas, 0, 0, 1, 0, $w - 1, $h, 33.33333); // left
+	    imagecopymerge ($imgBlur, $imgCanvas, 1, 0, 0, 0, $w, $h, 25); // right
+	    imagecopymerge ($imgBlur, $imgCanvas, 0, 0, 0, 1, $w, $h - 1, 20 ); // up
+	    imagecopymerge ($imgBlur, $imgCanvas, 0, 1, 0, 0, $w, $h, 16.666667); // down
+	    imagecopymerge ($imgBlur, $imgCanvas, 0, 0, 0, 0, $w, $h, 50); // center
+	}
+	$imgCanvas = $imgBlur;
+    
+	// Calculate the difference between the blurred pixels and the original
+	// and set the pixels
+	for ($x = 0; $x < $w; $x++) { // each row
+	    for ($y = 0; $y < $h; $y++) { // each pixel
+		$rgbOrig = ImageColorAt($imgCanvas2, $x, $y);
+		$rOrig = (($rgbOrig >> 16) & 0xFF);
+		$gOrig = (($rgbOrig >> 8) & 0xFF);
+		$bOrig = ($rgbOrig & 0xFF);
+		$rgbBlur = ImageColorAt($imgCanvas, $x, $y);
+		$rBlur = (($rgbBlur >> 16) & 0xFF);
+		$gBlur = (($rgbBlur >> 8) & 0xFF);
+		$bBlur = ($rgbBlur & 0xFF);
 
-			$radius = abs(round($radius)); 	// Only integers make sense.
-			if ($radius == 0) {	return $img; imagedestroy($img); break;	}
-			$w = imagesx($img); $h = imagesy($img);
-			$imgCanvas = $img;
-			$imgCanvas2 = $img;
-			$imgBlur = imagecreatetruecolor($w, $h);
+		// When the masked pixels differ less from the original
+		// than the threshold specifies, they are set to their original value.
+		$rNew = (abs($rOrig - $rBlur) >= $threshold) ? max(0, min(255, ($amount * ($rOrig - $rBlur)) + $rOrig)) : $rOrig;
+		$gNew = (abs($gOrig - $gBlur) >= $threshold) ? max(0, min(255, ($amount * ($gOrig - $gBlur)) + $gOrig)) : $gOrig;
+		$bNew = (abs($bOrig - $bBlur) >= $threshold) ? max(0, min(255, ($amount * ($bOrig - $bBlur)) + $bOrig)) : $bOrig;
 
-			// Gaussian blur matrix:
-			//	1	2	1
-			//	2	4	2
-			//	1	2	1
-
-			// Move copies of the image around one pixel at the time and merge them with weight
-			// according to the matrix. The same matrix is simply repeated for higher radii.
-			for ($i = 0; $i < $radius; $i++)
-				{
-				imagecopy	  ($imgBlur, $imgCanvas, 0, 0, 1, 1, $w - 1, $h - 1); // up left
-				imagecopymerge ($imgBlur, $imgCanvas, 1, 1, 0, 0, $w, $h, 50); // down right
-				imagecopymerge ($imgBlur, $imgCanvas, 0, 1, 1, 0, $w - 1, $h, 33.33333); // down left
-				imagecopymerge ($imgBlur, $imgCanvas, 1, 0, 0, 1, $w, $h - 1, 25); // up right
-				imagecopymerge ($imgBlur, $imgCanvas, 0, 0, 1, 0, $w - 1, $h, 33.33333); // left
-				imagecopymerge ($imgBlur, $imgCanvas, 1, 0, 0, 0, $w, $h, 25); // right
-				imagecopymerge ($imgBlur, $imgCanvas, 0, 0, 0, 1, $w, $h - 1, 20 ); // up
-				imagecopymerge ($imgBlur, $imgCanvas, 0, 1, 0, 0, $w, $h, 16.666667); // down
-				imagecopymerge ($imgBlur, $imgCanvas, 0, 0, 0, 0, $w, $h, 50); // center
-				}
-			$imgCanvas = $imgBlur;
-
-			// Calculate the difference between the blurred pixels and the original
-			// and set the pixels
-			for ($x = 0; $x < $w; $x++)
-				{ // each row
-				for ($y = 0; $y < $h; $y++)
-					{ // each pixel
-					$rgbOrig = ImageColorAt($imgCanvas2, $x, $y);
-					$rOrig = (($rgbOrig >> 16) & 0xFF);
-					$gOrig = (($rgbOrig >> 8) & 0xFF);
-					$bOrig = ($rgbOrig & 0xFF);
-					$rgbBlur = ImageColorAt($imgCanvas, $x, $y);
-					$rBlur = (($rgbBlur >> 16) & 0xFF);
-					$gBlur = (($rgbBlur >> 8) & 0xFF);
-					$bBlur = ($rgbBlur & 0xFF);
-
-					// When the masked pixels differ less from the original
-					// than the threshold specifies, they are set to their original value.
-					$rNew = (abs($rOrig - $rBlur) >= $threshold) ? max(0, min(255, ($amount * ($rOrig - $rBlur)) + $rOrig)) : $rOrig;
-					$gNew = (abs($gOrig - $gBlur) >= $threshold) ? max(0, min(255, ($amount * ($gOrig - $gBlur)) + $gOrig)) : $gOrig;
-					$bNew = (abs($bOrig - $bBlur) >= $threshold) ? max(0, min(255, ($amount * ($bOrig - $bBlur)) + $bOrig)) : $bOrig;
-
-					if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew))
-						{
-						$pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
-						ImageSetPixel($img, $x, $y, $pixCol);
-						}
-					}
-				}
-			return $img;
-			}
+		if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew)) {
+		    $pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
+		    ImageSetPixel($img, $x, $y, $pixCol);
+		    }
 		}
+	    }
+	return $img;
+    }
+}
