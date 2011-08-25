@@ -10,11 +10,12 @@
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
 * Created:  07-02-2011
-* Last update: 30-06-2011
+* Last update: 25-08-2011
 *
-* Description:  Simple library to create "thumbnails" in fly
+* Description:  Modified auth system based on redux_auth with extensive customization.  This is basically what Redux Auth 2 should be.
+* Original Author name has been kept but that does not mean that the method has not been modified.
 *
-* Requirements: PHP5 or above, GD
+* Requirements: PHP5 or above
 *
 */
 
@@ -32,10 +33,9 @@ class img {
     function __construct() {
 	$this->ci =& get_instance();
 	$this->ci->load->config('img', TRUE);
-        // Do something with $params
 
 	$this->base_path = $this->ci->config->item('base_path', 'img');
-	$this->base_url = $this->ci->config->item('base_url', 'img');
+	$this->base_url = rtrim('/', $this->ci->config->item('base_url', 'img'));
     }
 
     function rimg($source, $params, $oi = true) {
@@ -73,13 +73,24 @@ class img {
 	}
 
 	// if width & height -> assign them to dest
-	if (!empty($params['width'])) $dst['width'] = $params['width'];
-	if (!empty($params['height'])) $dst['height'] = $params['height'];
+	if (!empty($params['width'])) {
+	    $dst['width'] = intval($params['width']);
+	}
+		
+	if (!empty($params['height'])) {
+	    $dst['height'] = intval($params['height']);
+	}
+	
+	if (!empty($params['alt'])) {
+	    $params['alt'] = htmlentities($params['alt']);
+	}
 
 	// if alt is empty, setup file name - bad idea ;)
-	if (empty($params['alt'])) $params['alt'] = basename($source);
+	if (empty($params['alt'])) {
+	    $params['alt'] = basename($source);	
+	}
 
-	if (is_numeric($params['longside']))
+	if (is_numeric($params['longside'])) {
 	    if ($src['width'] < $src['height']) {
 		$dst['height']	= $params['longside'];
 		$dst['width']	= round($params['longside']/($src['height']/$src['width']));
@@ -87,6 +98,7 @@ class img {
 		$dst['width']	= $params['longside'];
 		$dst['height']	= round($params['longside']/($src['width']/$src['height']));
 	    }
+	}
 
 	if (is_numeric($params['shortside'])) {
 	    if ($src['width'] < $src['height']) {
@@ -137,8 +149,6 @@ class img {
 
 	}
 
-
-
 	// create destination directory width x height or longside
 	if (empty($params['longside']))
 	    $dir = "{$dst['width']}x{$dst['height']}";
@@ -156,6 +166,11 @@ class img {
 	// extra parameters
 	if (!empty($params['class']))
 	    $ep .= "class=\"{$params['class']}\"";
+	    
+	// id src width & height = dst baypass
+	if ($src['width'] == $dst['width'] && $src['height'] == $dst['height']) {
+		return "<img src=\"{$this->base_url}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
+	}
 
 	// if file exists - return img info
 	if (file_exists($dst['file']) && $params['nocache'] == false) return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
@@ -219,7 +234,7 @@ class img {
 	    break;
 	    case 2:
 		Imageinterlace($dst['image'], 1);
-		if (empty($params['quality'])) $params['quality'] = 80;
+		if (empty($params['quality'])) $params['quality'] = 85;
 		imagejpeg($dst['image'], $dst['file'], $params['quality']);
 	    break;
 	    case 3:
