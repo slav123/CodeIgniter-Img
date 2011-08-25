@@ -35,7 +35,7 @@ class img {
 	// Do something with $params
 
 	$this->base_path = $this->ci->config->item('base_path', 'img');
-	$this->base_url = rtrim('/', $this->ci->config->item('base_url', 'img'));
+	$this->base_url = rtrim($this->ci->config->item('base_url', 'img'), '/');
     }
 
     function rimg($source, $params, $oi = true) {
