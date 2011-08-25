@@ -6,7 +6,6 @@
 *		  slav123@gmail.com
 *         @slavomirj
 *
-*
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
 * Created:  07-02-2011
@@ -31,66 +30,63 @@ class img {
     public $base = '';
 
     function __construct() {
-	$this->ci =& get_instance();
-	$this->ci->load->config('img', TRUE);
+	    $this->ci =& get_instance();
+	    $this->ci->load->config('img', TRUE);
+        // Do something with $params
 
-	$this->base_path = $this->ci->config->item('base_path', 'img');
-	$this->base_url = rtrim('/', $this->ci->config->item('base_url', 'img'));
+	    $this->base_path = $this->ci->config->item('base_path', 'img');
+	    $this->base_url = rtrim('/', $this->ci->config->item('base_url', 'img'));
     }
 
     function rimg($source, $params, $oi = true) {
 
-	if (file_exists($this->base_path . $source))
-	    $source = $this->base_path . $source;
-	else {
-	    $path_parts = pathinfo($source);
-	    $source = $path_parts['dirname'] .'/' . $path_parts['filename'];
-	}
+	    if (file_exists($this->base_path . $source))
+    	    $source = $this->base_path . $source;
+    	else {
+    	    $path_parts = pathinfo($source);
+    	    $source = $path_parts['dirname'] .'/' . $path_parts['filename'];
+    	}
 
-	if (!is_file($source)) {
-	    return "no image: " . basename($source);
-	    die;
-	}
+	    if (!is_file($source)) {
+	        return "no image: " . basename($source);
+	        die;
+	    }
 
+    	$info = @getimagesize($source);
 
-	$info = @getimagesize($source);
+	    if (empty($info)) {
+	        return "not image";
+	        die;
+	    }
 
-	if (empty($info)) {
-	    return "not image";
-	    die;
-	}
+	    $src['width'] = $info[0];
+	    $src['height'] = $info[1];
 
-	$src['width'] = $info[0];
-	$src['height'] = $info[1];
+	    // default $dst
+	    $dst = array('offset_w' => 0, 'offset_h' => 0);
 
-	// default $dst
-	$dst = array('offset_w' => 0, 'offset_h' => 0);
-
-	// default values, null them to avoid empty indexes later
-	$def = array('longside','shortside','crop', 'width', 'height', 'sharpen', 'nocache');
-	foreach ($def as $v) {
-	    if (!isset($params[$v])) $params[$v] = null;
-	}
+	    // default values, null them to avoid empty indexes later
+	    $def = array('longside','shortside','crop', 'width', 'height', 'sharpen');
+	    foreach ($def as $v) {
+    	    if (!isset($params[$v])) $params[$v] = null;
+    	}
 
 	// if width & height -> assign them to dest
 	if (!empty($params['width'])) {
-	    $dst['width'] = intval($params['width']);
+        $dst['width'] = intval($params['width']);
 	}
-		
 	if (!empty($params['height'])) {
-	    $dst['height'] = intval($params['height']);
-	}
-	
-	if (!empty($params['alt'])) {
-	    $params['alt'] = htmlentities($params['alt']);
+        $dst['height'] = intval($params['height']);
 	}
 
 	// if alt is empty, setup file name - bad idea ;)
 	if (empty($params['alt'])) {
-	    $params['alt'] = basename($source);	
+        $params['alt'] = basename($source);
+	} else {
+        $params['alt'] = htmlentities($params['alt']);
 	}
 
-	if (is_numeric($params['longside'])) {
+	if (is_numeric($params['longside']))
 	    if ($src['width'] < $src['height']) {
 		$dst['height']	= $params['longside'];
 		$dst['width']	= round($params['longside']/($src['height']/$src['width']));
@@ -98,7 +94,6 @@ class img {
 		$dst['width']	= $params['longside'];
 		$dst['height']	= round($params['longside']/($src['width']/$src['height']));
 	    }
-	}
 
 	if (is_numeric($params['shortside'])) {
 	    if ($src['width'] < $src['height']) {
@@ -109,11 +104,6 @@ class img {
 		$dst['width']	= round($params['shortside']/($dst['height']/$dst['width']));
 	    }
 	}
-
-	$dst_y = $dst_x = 0;
-
-	$dst['swidth'] = $dst['width'];
-	$dst['sheight'] = $dst['height'];
 
 	// crop yes / no
 	if($params['crop'] == true) {
@@ -127,26 +117,6 @@ class img {
 		$dst['offset_h'] = round(($src['height']-$dst['height']*$width_ratio)/2);
 		$src['height'] = round($dst['height']*$width_ratio);
 	    }
-	} else if (!isset($params['longside'])) {
-
-	    $width_ratio = $src['width']/$dst['width'];
-	    $height_ratio = $src['height']/$dst['height'];
-
-	    $dst['width'] = $params['width'];
-	    $dst['height'] = $params['height'];
-
-	    // if ($params['longside']) $dst['width'] = $dst['height'] = $params['longside'];
-
-	    if ($width_ratio > $height_ratio) {
-		$dst['sheight'] = round($src['height'] / $width_ratio);
-		$dst_y = ($dst['height'] - $dst['sheight']) / 2;
-		$dst['swidth'] = $dst['width'];
-	    } else {
-		$dst['swidth'] = round($src['width'] / $height_ratio);
-		$dst_x = ($dst['width'] - $dst['swidth']) / 2;
-		$dst['sheight'] = $dst['height'];
-	    }
-
 	}
 
 	// create destination directory width x height or longside
@@ -166,14 +136,16 @@ class img {
 	// extra parameters
 	if (!empty($params['class']))
 	    $ep .= "class=\"{$params['class']}\"";
-	    
-	// id src width & height = dst baypass
-	if ($src['width'] == $dst['width'] && $src['height'] == $dst['height']) {
+
+    // id src width & height = dst baypass
+    if ($src['width'] == $dst['width'] && $src['height'] == $dst['height']) {
 		return "<img src=\"{$this->base_url}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 	}
 
 	// if file exists - return img info
-	if (file_exists($dst['file']) && $params['nocache'] == false) return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
+	if (file_exists($dst['file'])) {
+        return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
+	}
 
 	// create dst img
 	switch ($info[2]) {
@@ -188,20 +160,12 @@ class img {
 	    break;
 	}
 
-	if (empty($params['color'])) $params['color'] = array(255,255,255);
-
 	if ($dst['width']*4 < $src['width'] AND $dst['height']*4 < $src['height']) {
 	    $_TMP['width'] = round($dst['width']*4);
 	    $_TMP['height'] = round($dst['height']*4);
 
 	    $_TMP['image'] = imagecreatetruecolor($_TMP['width'], $_TMP['height']);
-
-	    if ($params['crop'] == false) {
-	        $color = imagecolorallocate($_TMP['image'], $params['color'][0], $params['color'][1], $params['color'][2]);
-	        imagefill($_TMP['image'], 0, 0, $color);
-	    }
-
-	    imagecopyresized($_TMP['image'], $src['image'], $dst_x, $dst_y, $dst['offset_w'], $dst['offset_h'], $_TMP['width'], $_TMP['height'], $src['width'], $src['height']);
+	    imagecopyresized($_TMP['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $_TMP['width'], $_TMP['height'], $src['width'], $src['height']);
 	    $src['image'] = $_TMP['image'];
 	    $src['width'] = $_TMP['width'];
 	    $src['height'] = $_TMP['height'];
@@ -211,21 +175,11 @@ class img {
 	    unset($_TMP['image']);
 	}
 
-
 	$dst['image'] = imagecreatetruecolor($dst['width'], $dst['height']);
-
-
-
-	if ($params['crop'] == false) {
-	    $color = imagecolorallocate($dst['image'], $params['color'][0], $params['color'][1], $params['color'][2]);
-	    imagefill($dst['image'], 0, 0, $color);
-	}
-
-	imagecopyresampled($dst['image'], $src['image'], $dst_x, $dst_y, $dst['offset_w'], $dst['offset_h'], $dst['swidth'], $dst['sheight'], $src['width'], $src['height']);
+	imagecopyresampled($dst['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $dst['width'], $dst['height'], $src['width'], $src['height']);
 	if ($params['sharpen'] != false) $dst['image'] = $this->UnsharpMask($dst['image'],80,.5,3);
 
 	$dst['type'] = $info[2];
-
 
 	switch ($dst['type']) {
 	    case 1:
@@ -234,7 +188,7 @@ class img {
 	    break;
 	    case 2:
 		Imageinterlace($dst['image'], 1);
-		if (empty($params['quality'])) $params['quality'] = 85;
+		if (empty($params['quality'])) $params['quality'] = 80;
 		imagejpeg($dst['image'], $dst['file'], $params['quality']);
 	    break;
 	    case 3:
@@ -242,25 +196,10 @@ class img {
 	    break;
 	}
 
-	imagedestroy($dst['image']);
-	imagedestroy($src['image']);
+	    imagedestroy($dst['image']);
+	    imagedestroy($src['image']);
 
-	return "<img src=\"{$this->base_url}/{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
-
-	/*
-          Array
-(
-    [0] =&gt; 800
-    [1] =&gt; 600
-    [2] =&gt; 2
-    [3] =&gt; width="800" height="600"
-    [bits] =&gt; 8
-    [channels] =&gt; 3
-    [mime] =&gt; image/jpeg
-)
-	*/
-
-
+	    return "<img src=\"{$this->base_url}/{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
     }
 
