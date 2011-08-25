@@ -11,10 +11,12 @@
 * Created:  07-02-2011
 * Last update: 25-08-2011
 *
-* Description:  Modified auth system based on redux_auth with extensive customization.  This is basically what Redux Auth 2 should be.
-* Original Author name has been kept but that does not mean that the method has not been modified.
+* Description:  CodeIgniter library to generate high quality thumbnails
 *
-* Requirements: PHP5 or above
+* Library is based on excellent * Smarty plugin “Thumb” * created in 2005 by Christoph Erdmann. This version is a little bit
+* different, we are using core from Thumb, and some modification which gives more flexibility to work with it.
+*
+* Requirements: PHP5 with GD or above
 *
 */
 
@@ -44,7 +46,7 @@ class img {
     	    $source = $this->base_path . $source;
     	else {
     	    $path_parts = pathinfo($source);
-    	    $source = $path_parts['dirname'] .'/' . $path_parts['filename'];
+    	    $source = $path_parts['dirname'] . '/' . $path_parts['filename'];
     	}
 
 	if (!is_file($source)) {
@@ -54,20 +56,21 @@ class img {
 
     	$info = @getimagesize($source);
 
-	    if (empty($info)) {
-	        return "not image";
-	        die;
-	    }
+	if (empty($info)) {
+	    return "not image";
+	    die;
+	}
 
-	    $src['width'] = $info[0];
-	    $src['height'] = $info[1];
+	$src['width'] = $info[0];
+	$src['height'] = $info[1];
 
-	    // default $dst
-	    $dst = array('offset_w' => 0, 'offset_h' => 0);
+	// default $dst
+	$dst = array('offset_w' => 0, 'offset_h' => 0);
 
-	    // default values, null them to avoid empty indexes later
-	    $def = array('longside','shortside','crop', 'width', 'height', 'sharpen');
-	    foreach ($def as $v) {
+	// default values, null them to avoid empty indexes later
+	$def = array('longside','shortside','crop', 'width', 'height', 'sharpen');
+	
+	foreach ($def as $v) {
     	    if (!isset($params[$v])) $params[$v] = null;
     	}
 
@@ -126,15 +129,19 @@ class img {
 	    $dir = $params['longside'];
 
 	// check if dest directory exists
-	if (!is_dir($this->base_path . $dir)) mkdir($this->base_path . $dir);
+	if (!is_dir($this->base_path . $dir)) {
+	    mkdir($this->base_path . $dir);
+	}
 
 	// full path to final file
 	$dst['file'] = $this->base_path . $dir . "/" . basename($source);
 
 	$ep = '';
+	
 	// extra parameters
-	if (!empty($params['class']))
+	if (!empty($params['class'])) {
 	    $ep .= "class=\"{$params['class']}\"";
+	}
 
 	// id src width & height = dst baypass
 	if ($src['width'] == $dst['width'] && $src['height'] == $dst['height']) {
@@ -187,7 +194,7 @@ class img {
 	    break;
 	    case 2:
 		Imageinterlace($dst['image'], 1);
-		if (empty($params['quality'])) $params['quality'] = 80;
+		if (empty($params['quality'])) $params['quality'] = 85;
 		imagejpeg($dst['image'], $dst['file'], $params['quality']);
 	    break;
 	    case 3:
@@ -195,10 +202,10 @@ class img {
 	    break;
 	}
 
-	    imagedestroy($dst['image']);
-	    imagedestroy($src['image']);
+	imagedestroy($dst['image']);
+	imagedestroy($src['image']);
 
-	    return "<img src=\"{$this->base_url}/{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
+	return "<img src=\"{$this->base_url}/{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 
     }
 
