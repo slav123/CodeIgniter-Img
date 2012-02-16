@@ -3,13 +3,13 @@
 * Name:  Img
 *
 * Author: Slawomir Jasinski
-*		  slav123@gmail.com
+*	slav123@gmail.com
 *         @slavomirj
 *
 * Location: http://github.com/slav123/CodeIgniter-Img
 *
 * Created:  07-02-2011
-* Last update: 25-08-2011
+* Last update: 16-02-2012
 *
 * Description:  CodeIgniter library to generate high quality thumbnails
 *
@@ -152,6 +152,8 @@ class img {
 	if (file_exists($dst['file'])) {
 	    return "<img src=\"{$this->base_url}/$dir/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$ep}/>";
 	}
+	
+	$this->memoryPrepare($info);
 
 	// create dst img
 	switch ($info[2]) {
@@ -263,13 +265,26 @@ class img {
 		$gNew = (abs($gOrig - $gBlur) >= $threshold) ? max(0, min(255, ($amount * ($gOrig - $gBlur)) + $gOrig)) : $gOrig;
 		$bNew = (abs($bOrig - $bBlur) >= $threshold) ? max(0, min(255, ($amount * ($bOrig - $bBlur)) + $bOrig)) : $bOrig;
 
-		if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew))
-			{
-			$pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
-			ImageSetPixel($img, $x, $y, $pixCol);
-			}
+		if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew)) {
+		    $pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
+		    ImageSetPixel($img, $x, $y, $pixCol);
 		}
 	    }
-	    return $img;
 	}
+	return $img;
     }
+    
+    
+    private function memoryPrepare($image) {
+        $memoryNeeded = ceil(($image[0] * $image[1] * $image["bits"])/(1024*1024));
+        $memoryNeeded += ($memoryNeeded * 0.05);
+        $memoryAvailble = intval(ini_get('memory_limit'));
+//      echo "<br>memory avaible = $memoryAvailble";
+
+        if ($memoryNeeded > $memoryAvailble) {
+//          echo "<br>memoryNeeded = $memoryNeeded <br>";
+            @ini_set("memory_limit", $memoryNeeded."M");
+//          echo "<br>memory avaible = ".ini_get('memory_limit');
+        }
+    }
+}
