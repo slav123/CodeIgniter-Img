@@ -1,22 +1,21 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
-* Name:  Img
-*
-* Author: Slawomir Jasinski
-*		  slav123@gmail.com
-*         @slavomirj
-*
-* Location: http://github.com/slav123/CodeIgniter-Img/
-*
-* Created:  07.02.2011
-*
-* Description:
-*
-*/
+ * IMG config
+ *
+ * PHP Version 5.3
+ *
+ * @category  PHP
+ * @package   Controller
+ * @author    Slawomir Jasinski <slav123@gmail.com>
+ * @copyright 2012 All Rights Reserved Imagination
+ * @license   Copyright 2012 All Rights Reserved
+ * @version   CVS: <cvs_id>
+ * @link      http://www.spidersoft.com.au
+ */
 
 
-    $config['base_path'] = $_SERVER["DOCUMENT_ROOT"]. '/images/';
-    $config['base_url'] = '/images/';
+    $config['base_path'] = FCPATH . '/media/img';
+    $config['base_url'] = '/media/img';
 
 
 /* Location: ./system/application/config/img.php */
