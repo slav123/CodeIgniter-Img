@@ -53,7 +53,7 @@ class img
 
 		if (file_exists($this->ci->config->config['img']['base_path'] . '/' . $source))
 		{
-			$source = $this->ci->config->config['img']['base_path'] . '/ ' . $source;
+			$source = $this->ci->config->config['img']['base_path'] . '/' . $source;
 		}
 		else {
 			$path_parts = pathinfo($source);
