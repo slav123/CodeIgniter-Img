@@ -15,7 +15,7 @@
 
 
     $config['base_path'] = FCPATH . '/media/img';
-    $config['base_url'] = '/media/img';
+    $config['base_url'] = '/CBASmallBiz/media/img';
 
 
 /* Location: ./system/application/config/img.php */
