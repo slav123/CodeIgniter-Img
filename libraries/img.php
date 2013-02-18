@@ -9,7 +9,7 @@
  * Location: http://github.com/slav123/CodeIgniter-Img
  *
  * Created:  07-02-2011
- * Last update: 16-02-2012
+ * Last update: 19-02-2013
  *
  * Description:  CodeIgniter library to generate high quality thumbnails
  *
@@ -399,8 +399,12 @@ class img
 
 
 	/**
-	 * @param $image
-	 */private function _memory_prepare($image)
+	 * increase memory limit for image rescale
+	 * 
+	 * @param obj $image image handler
+	 * 
+	 */
+	private function _memory_prepare($image)
 	{
 		$memoryNeeded = ceil(($image[0] * $image[1] * $image["bits"]) / (1024 * 1024));
 		$memoryNeeded += ($memoryNeeded * 0.05);
