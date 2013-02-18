@@ -7,15 +7,15 @@
  * @category  PHP
  * @package   Controller
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2012 All Rights Reserved Imagination
- * @license   Copyright 2012 All Rights Reserved
- * @version   CVS: <cvs_id>
+ * @copyright 2013 All Rights Reserved SpiderSoft
+ * @license   Copyright 2013 All Rights Reserved
  * @link      http://www.spidersoft.com.au
  */
 
 
-    $config['base_path'] = FCPATH . '/media/img';
-    $config['base_url'] = '/CBASmallBiz/media/img';
+    $config['base_path'] = FCPATH . 'assets/img';
+    $config['base_url'] = 'assets/img';
 
 
-/* Location: ./system/application/config/img.php */
+// End of file img.php
+// Location: ./config/img.php
