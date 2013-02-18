@@ -229,7 +229,7 @@ class img
 		// id src width & height = dst baypass
 		if ($src['width'] === $dst['width'] && $src['height'] === $dst['height'])
 		{
-			return "<img src=\"{$this->ci->config->config['img']['base_url']}\\" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			return "<img src=\"{$this->ci->config->config['img']['base_url']}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
 		}
 
 		// if file exists - return img info
