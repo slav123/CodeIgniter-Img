@@ -9,7 +9,7 @@
  * Location: http://github.com/slav123/CodeIgniter-Img
  *
  * Created:  07-02-2011
- * Last update: 19-02-2013
+ * Last update: 26-02-2013
  *
  * Description:  CodeIgniter library to generate high quality thumbnails
  *
@@ -52,25 +52,23 @@ class img
 	{
 		$source = trim($source);
 
-		if (file_exists($this->ci->config->config['img']['base_path'] . '/' . $source))
-		{
+		if (file_exists($this->ci->config->config['img']['base_path'] . '/' . $source)) {
 			$source = $this->ci->config->config['img']['base_path'] . '/' . $source;
-		}
-		else {
+		} else {
 			$path_parts = pathinfo($source);
 			$source = $path_parts['dirname'] . '/' . $path_parts['basename'];
 		}
 
-		if (!is_file($source)) {
+		if ( ! is_file($source)) {
 			return "no image: {$source}";
-			die;
+			die();
 		}
 
 		$info = @getimagesize($source);
 
 		if (empty($info)) {
-			return "not and image";
-			die;
+			return "not an image";
+			die();
 		}
 
 		$src['width'] = $info[0];
@@ -92,21 +90,18 @@ class img
 		}
 
 		// if width & height -> assign them to dest
-		if (! empty($params['width']))
-		{
+		if (! empty($params['width']))	{
 			$dst['width'] = intval($params['width']);
 		}
-		if (! empty($params['height']))
-		{
+		
+		if (! empty($params['height'])) {
 			$dst['height'] = intval($params['height']);
 		}
 
 		// if alt is empty, setup file name - bad idea ;)
-		if (empty($params['alt']))
-		{
+		if (empty($params['alt'])) {
 			$params['alt'] = basename($source);
-		} else
-		{
+		} else {
 			$params['alt'] = htmlentities($params['alt']);
 		}
 
@@ -226,7 +221,7 @@ class img
 			$extra_parameters .= "class=\"{$params['class']}\"";
 		}
 
-		// id src width & height = dst baypass
+		// id src width & height = dst by-pass
 		if ($src['width'] === $dst['width'] && $src['height'] === $dst['height'])
 		{
 			return "<img src=\"{$this->ci->config->config['img']['base_url']}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
