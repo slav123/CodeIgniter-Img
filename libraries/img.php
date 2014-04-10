@@ -294,6 +294,11 @@ class img
 		}
 
 		$dst['image'] = imagecreatetruecolor($dst['width'], $dst['height']);
+		imagealphablending($dst['image'], FALSE);
+		imagesavealpha($dst['image'], TRUE);
+
+		$transparent = imagecolorallocatealpha($dst['image'], 255, 255, 255, 127);
+		imagefilledrectangle($dst['image'], 0, 0, $dst['width'], $dst['height'], $transparent);
 
 		imagecopyresampled($dst['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $dst['width'], $dst['height'], $src['width'], $src['height']);
 
