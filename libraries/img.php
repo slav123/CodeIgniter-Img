@@ -1,9 +1,11 @@
-<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
+
 /**
  * Name:  Img
  *
  * Author: Slawomir Jasinski
- *	slav123@gmail.com
+ *    slav123@gmail.com
+ *
  * @slavomirj
  *
  * Location: http://github.com/slav123/CodeIgniter-Img
@@ -19,7 +21,6 @@
  * Requirements: PHP5 with GD or above
  *
  */
-
 class img
 {
 
@@ -42,9 +43,9 @@ class img
 	/**
 	 * main scale function
 	 *
-	 * @param string $source url to file
-	 * @param array $params params array
-	 * @param bool $no_cache overwrite existing files
+	 * @param string $source   url to file
+	 * @param array  $params   params array
+	 * @param bool   $no_cache overwrite existing files
 	 *
 	 * @return string
 	 */
@@ -52,26 +53,31 @@ class img
 	{
 		$source = trim($source);
 
-		if (file_exists($this->ci->config->config['img']['base_path'] . '/' . $source)) {
+		if (file_exists($this->ci->config->config['img']['base_path'] . '/' . $source))
+		{
 			$source = $this->ci->config->config['img']['base_path'] . '/' . $source;
-		} else {
+		}
+		else
+		{
 			$path_parts = pathinfo($source);
-			$source = $path_parts['dirname'] . '/' . $path_parts['basename'];
+			$source     = $path_parts['dirname'] . '/' . $path_parts['basename'];
 		}
 
-		if ( ! is_file($source)) {
+		if (! is_file($source))
+		{
 			return "no image: {$source}";
 			die();
 		}
 
 		$info = @getimagesize($source);
 
-		if (empty($info)) {
+		if (empty($info))
+		{
 			return "not an image";
 			die();
 		}
 
-		$src['width'] = $info[0];
+		$src['width']  = $info[0];
 		$src['height'] = $info[1];
 
 		// default $dst
@@ -85,23 +91,29 @@ class img
 		if (empty($params['b'])) $params['b'] = 255;
 
 		// set default paramteres
-		foreach ($def as $v) {
+		foreach ($def as $v)
+		{
 			if (! isset($params[$v])) $params[$v] = NULL;
 		}
 
 		// if width & height -> assign them to dest
-		if (! empty($params['width']))	{
+		if (! empty($params['width']))
+		{
 			$dst['width'] = intval($params['width']);
 		}
-		
-		if (! empty($params['height'])) {
+
+		if (! empty($params['height']))
+		{
 			$dst['height'] = intval($params['height']);
 		}
 
 		// if alt is empty, setup file name - bad idea ;)
-		if (empty($params['alt'])) {
+		if (empty($params['alt']))
+		{
 			$params['alt'] = basename($source);
-		} else {
+		}
+		else
+		{
 			$params['alt'] = htmlentities($params['alt']);
 		}
 
@@ -111,11 +123,11 @@ class img
 			if ($src['width'] < $src['height'])
 			{
 				$dst['height'] = $params['longside'];
-				$dst['width'] = round($params['longside'] / ($src['height'] / $src['width']));
+				$dst['width']  = round($params['longside'] / ($src['height'] / $src['width']));
 			}
 			else
 			{
-				$dst['width'] = $params['longside'];
+				$dst['width']  = $params['longside'];
 				$dst['height'] = round($params['longside'] / ($src['width'] / $src['height']));
 			}
 		}
@@ -125,55 +137,62 @@ class img
 		{
 			if ($src['width'] < $src['height'])
 			{
-				$dst['width'] = $params['shortside'];
+				$dst['width']  = $params['shortside'];
 				$dst['height'] = round($params['shortside'] / ($src['width'] / $src['height']));
 			}
 			else
 			{
 				$dst['height'] = $params['shortside'];
-				$dst['width'] = round($params['shortside'] / ($src['height'] / $src['width']));
+				$dst['width']  = round($params['shortside'] / ($src['height'] / $src['width']));
 			}
 		}
 
 		// crop yes / no
 		if ($params['crop'] === TRUE)
 		{
-			$width_ratio = $src['width'] / $dst['width'];
+			$width_ratio  = $src['width'] / $dst['width'];
 			$height_ratio = $src['height'] / $dst['height'];
 
-			if ($width_ratio > $height_ratio) {
+			if ($width_ratio > $height_ratio)
+			{
 				$dst['offset_w'] = round(($src['width'] - $dst['width'] * $height_ratio) / 2);
-				$src['width'] = round($dst['width'] * $height_ratio);
-			} elseif ($width_ratio < $height_ratio) {
+				$src['width']    = round($dst['width'] * $height_ratio);
+			}
+			elseif ($width_ratio < $height_ratio)
+			{
 				$dst['offset_h'] = round(($src['height'] - $dst['height'] * $width_ratio) / 2);
-				$src['height'] = round($dst['height'] * $width_ratio);
+				$src['height']   = round($dst['height'] * $width_ratio);
 			}
 		}
 
 		// fill empty space around image
 		if ($params['frame'] === TRUE)
 		{
-			$src['ratio'] = $src['width'] / $src['height'];
+			$src['ratio']    = $src['width'] / $src['height'];
 			$params['ratio'] = $params['width'] / $src['height'];
 			if ($src['width'] > $src['height'])
 			{
-				if ((($params['height']/$src['ratio']) < $params['ratio']) OR (round($params['width']/$src['ratio']) > $params['height']) )
+				if ((($params['height'] / $src['ratio']) < $params['ratio']) OR (round($params['width'] / $src['ratio']) > $params['height']))
 				{
-					$dst['width'] = round($params['height']*$src['ratio']);
+					$dst['width']  = round($params['height'] * $src['ratio']);
 					$dst['height'] = $params['height'];
-				} else {
-					$dst['width'] = $params['width'];
-					$dst['height'] = round($params['width']/$src['ratio']);
+				}
+				else
+				{
+					$dst['width']  = $params['width'];
+					$dst['height'] = round($params['width'] / $src['ratio']);
 				}
 			}
 			else
 			{
-				if ((($params['height']/$src['ratio']) < $params['ratio']) OR (round($params['height']*$src['ratio']) > $params['width']) )
+				if ((($params['height'] / $src['ratio']) < $params['ratio']) OR (round($params['height'] * $src['ratio']) > $params['width']))
 				{
-					$dst['width'] = $params['width'];
-					$dst['height'] = round($params['width']/$src['ratio']);
-				} else {
-					$dst['width'] = round($params['height']*$src['ratio']);
+					$dst['width']  = $params['width'];
+					$dst['height'] = round($params['width'] / $src['ratio']);
+				}
+				else
+				{
+					$dst['width']  = round($params['height'] * $src['ratio']);
 					$dst['height'] = $params['height'];
 				}
 			}
@@ -217,7 +236,8 @@ class img
 		$extra_parameters = '';
 
 		// extra parameters
-		if (! empty($params['class'])) {
+		if (! empty($params['class']))
+		{
 			$extra_parameters .= "class=\"{$params['class']}\"";
 		}
 
@@ -251,13 +271,21 @@ class img
 
 		if ($dst['width'] * 4 < $src['width'] AND $dst['height'] * 4 < $src['height'])
 		{
-			$_TMP['width'] = round($dst['width'] * 4);
+			$_TMP['width']  = round($dst['width'] * 4);
 			$_TMP['height'] = round($dst['height'] * 4);
 
 			$_TMP['image'] = imagecreatetruecolor($_TMP['width'], $_TMP['height']);
-			imagecopyresized($_TMP['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $_TMP['width'], $_TMP['height'], $src['width'], $src['height']);
-			$src['image'] = $_TMP['image'];
-			$src['width'] = $_TMP['width'];
+
+			//imagecolortransparent($_TMP['image'], imagecolorallocate($_TMP['image'], 0, 0, 0, 127));
+			imagealphablending($_TMP['image'], FALSE);
+			imagesavealpha($_TMP['image'], TRUE);
+
+			$transparent = imagecolorallocatealpha($_TMP['image'], 255, 255, 255, 127);
+			imagefilledrectangle($_TMP['image'], 0, 0, $_TMP['width'], $_TMP['height'], $transparent);
+
+			imagecopyresampled($_TMP['image'], $src['image'], 0, 0, $dst['offset_w'], $dst['offset_h'], $_TMP['width'], $_TMP['height'], $src['width'], $src['height']);
+			$src['image']  = $_TMP['image'];
+			$src['width']  = $_TMP['width'];
 			$src['height'] = $_TMP['height'];
 
 			$dst['offset_w'] = 0;
@@ -277,8 +305,8 @@ class img
 		if ($params['frame'] === TRUE)
 		{
 
-			$dst_off_h = floor(($params['height'] - $dst['height'])/2);
-			$dst_off_w = round(($params['width'] - $dst['width'])/2);
+			$dst_off_h = floor(($params['height'] - $dst['height']) / 2);
+			$dst_off_w = round(($params['width'] - $dst['width']) / 2);
 
 			$currimg = $dst['image'];
 
@@ -286,8 +314,8 @@ class img
 
 			$bgcolor = imagecolorallocate($dst['image'], $params['r'], $params['g'], $params['b']);
 			imagefill($dst['image'], 0, 0, $bgcolor);
-			imagecopyresized ($dst['image'], $currimg, $dst_off_w, $dst_off_h, 0, 0, $dst['width'], $dst['height'], $dst['width'], $dst['height']);
-			$dst['width'] = $params['height'];
+			imagecopyresized($dst['image'], $currimg, $dst_off_w, $dst_off_h, 0, 0, $dst['width'], $dst['height'], $dst['width'], $dst['height']);
+			$dst['width']  = $params['height'];
 			$dst['height'] = $params['width'];
 
 		}
@@ -295,9 +323,10 @@ class img
 
 		$dst['type'] = $info[2];
 
-		switch ($dst['type']) {
+		switch ($dst['type'])
+		{
 			case 1:
-				imagetruecolortopalette($src['image'], false, 256);
+				imagetruecolortopalette($src['image'], FALSE, 256);
 				imagegif($dst['image'], $dst['file']);
 				break;
 			case 2:
@@ -324,7 +353,8 @@ class img
 	 * @param $threshold
 	 *
 	 * @return mixed
-	 */private function unsharp_mask($img, $amount, $radius, $threshold)
+	 */
+	private function unsharp_mask($img, $amount, $radius, $threshold)
 	{
 		// Attempt to calibrate the parameters to Photoshop:
 		if ($amount > 500) $amount = 500;
@@ -334,15 +364,16 @@ class img
 		if ($threshold > 255) $threshold = 255;
 
 		$radius = abs(round($radius)); // Only integers make sense.
-		if ($radius == 0) {
+		if ($radius == 0)
+		{
 			return $img;
 			imagedestroy($img);
 		}
-		$w = imagesx($img);
-		$h = imagesy($img);
-		$imgCanvas = $img;
+		$w          = imagesx($img);
+		$h          = imagesy($img);
+		$imgCanvas  = $img;
 		$imgCanvas2 = $img;
-		$imgBlur = imagecreatetruecolor($w, $h);
+		$imgBlur    = imagecreatetruecolor($w, $h);
 
 		// Gaussian blur matrix:
 		//	1	2	1
@@ -351,7 +382,8 @@ class img
 
 		// Move copies of the image around one pixel at the time and merge them with weight
 		// according to the matrix. The same matrix is simply repeated for higher radii.
-		for ($i = 0; $i < $radius; $i++) {
+		for ($i = 0; $i < $radius; $i ++)
+		{
 			imagecopy($imgBlur, $imgCanvas, 0, 0, 1, 1, $w - 1, $h - 1); // up left
 			imagecopymerge($imgBlur, $imgCanvas, 1, 1, 0, 0, $w, $h, 50); // down right
 			imagecopymerge($imgBlur, $imgCanvas, 0, 1, 1, 0, $w - 1, $h, 33.33333); // down left
@@ -366,16 +398,18 @@ class img
 
 		// Calculate the difference between the blurred pixels and the original
 		// and set the pixels
-		for ($x = 0; $x < $w; $x++) { // each row
-			for ($y = 0; $y < $h; $y++) { // each pixel
+		for ($x = 0; $x < $w; $x ++)
+		{ // each row
+			for ($y = 0; $y < $h; $y ++)
+			{ // each pixel
 				$rgbOrig = ImageColorAt($imgCanvas2, $x, $y);
-				$rOrig = (($rgbOrig >> 16) & 0xFF);
-				$gOrig = (($rgbOrig >> 8) & 0xFF);
-				$bOrig = ($rgbOrig & 0xFF);
+				$rOrig   = (($rgbOrig >> 16) & 0xFF);
+				$gOrig   = (($rgbOrig >> 8) & 0xFF);
+				$bOrig   = ($rgbOrig & 0xFF);
 				$rgbBlur = ImageColorAt($imgCanvas, $x, $y);
-				$rBlur = (($rgbBlur >> 16) & 0xFF);
-				$gBlur = (($rgbBlur >> 8) & 0xFF);
-				$bBlur = ($rgbBlur & 0xFF);
+				$rBlur   = (($rgbBlur >> 16) & 0xFF);
+				$gBlur   = (($rgbBlur >> 8) & 0xFF);
+				$bBlur   = ($rgbBlur & 0xFF);
 
 				// When the masked pixels differ less from the original
 				// than the threshold specifies, they are set to their original value.
@@ -383,21 +417,23 @@ class img
 				$gNew = (abs($gOrig - $gBlur) >= $threshold) ? max(0, min(255, ($amount * ($gOrig - $gBlur)) + $gOrig)) : $gOrig;
 				$bNew = (abs($bOrig - $bBlur) >= $threshold) ? max(0, min(255, ($amount * ($bOrig - $bBlur)) + $bOrig)) : $bOrig;
 
-				if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew)) {
+				if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew))
+				{
 					$pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
 					ImageSetPixel($img, $x, $y, $pixCol);
 				}
 			}
 		}
+
 		return $img;
 	}
 
 
 	/**
 	 * increase memory limit for image rescale
-	 * 
+	 *
 	 * @param obj $image image handler
-	 * 
+	 *
 	 */
 	private function _memory_prepare($image)
 	{
@@ -406,7 +442,8 @@ class img
 		$memoryAvailble = intval(ini_get('memory_limit'));
 		//      echo "<br>memory avaible = $memoryAvailble";
 
-		if ($memoryNeeded > $memoryAvailble) {
+		if ($memoryNeeded > $memoryAvailble)
+		{
 			//          echo "<br>memoryNeeded = $memoryNeeded <br>";
 			@ini_set("memory_limit", $memoryNeeded . "M");
 			//          echo "<br>memory avaible = ".ini_get('memory_limit');
