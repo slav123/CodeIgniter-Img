@@ -1,16 +1,18 @@
 #CodeIgniter - Img
 
-Simple Code Igniter library to generate high quality thumbnails
+Simple CodeIgniter library to generate high quality thumbnails
 ___
 Hey everybody,
 
-Library is based on excellent * Smarty plugin "Thumb" * created in 2005 by Christoph Erdmann. My version is a little bit different, I'm using core from Thumb, and some modification which gives me more flexibility to work with it.
+Library is based on excellent * Smarty plugin "Thumb" * created in 2005 by Christoph Erdmann. 
+
+My version is a little bit different, I'm using core from Thumb, and some modification which gives me more flexibility to work with it.
 
 ##DOCUMENTATION:
 Documentation is located at <http://www.spidersoft.com.au/projects/codeigniter-img-thumbnails-on-the-fly/>
 
 ##INSTALLATION:
-Just put img.php file in libraries path.
+Upload img.php file to application/libraries/, upload config/img.php to application/config folder. 
 
 ##USING THE LIBRARY:
 
@@ -23,7 +25,7 @@ $this->load->library('img');
 In view you can use function with this parameters:
 
 <code>
-echo $this->img->rimg($filename, array('longside' => 745, 'alt' => 'alt text')
+echo $this->img->rimg('assets/img/image.jpg', array('longside' => 745, 'alt' => 'alt text')
 </code>
 
 ##Parameters:
@@ -47,5 +49,7 @@ Feel free to send me an email if you have any problems.
 Thanks,
 
 Slawomir Jasinski
+
  slav123@gmail.com
+ 
  @slavomirj
