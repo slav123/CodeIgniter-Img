@@ -44,6 +44,10 @@ echo $this->img->rimg('assets/img/image.jpg', array('longside' => 745, 'alt' => 
 
 `nocache` – rewrite existing file in the cache
 
+`frame` - true / false (scale image to exact dimensions + create frame where proption is wrong)
+
+`r`,`g`,`b` - colors for frame background
+
 Feel free to send me an email if you have any problems.
 
 Thanks,
