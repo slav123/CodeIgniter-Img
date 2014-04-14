@@ -11,7 +11,7 @@
  * Location: http://github.com/slav123/CodeIgniter-Img
  *
  * Created:  07-02-2011
- * Last update: 26-02-2013
+ * Last update: 14-04-2014
  *
  * Description:  CodeIgniter library to generate high quality thumbnails
  *
@@ -63,9 +63,11 @@ class img
 			$source     = $path_parts['dirname'] . '/' . $path_parts['basename'];
 		}
 
+
+
 		if (! is_file($source))
 		{
-			return "no image: {$source}";
+			return '<img src="http://placehold.it/' . $params['width'] . 'x' . $params['height'] . '" width="'.$params['width'].'" height="'.$params['height'].'" alt="noimage">';
 			die();
 		}
 
@@ -84,7 +86,7 @@ class img
 		$dst = array('offset_w' => 0, 'offset_h' => 0);
 
 		// default values, null them to avoid empty indexes later
-		$def = array('longside', 'shortside', 'crop', 'width', 'height', 'sharpen', 'nocache', 'frame');
+		$def = array('longside', 'shortside', 'crop', 'width', 'height', 'sharpen', 'nocache', 'frame', 'return');
 
 		if (empty($params['r'])) $params['r'] = 255;
 		if (empty($params['g'])) $params['g'] = 255;
@@ -116,6 +118,9 @@ class img
 		{
 			$params['alt'] = htmlentities($params['alt']);
 		}
+
+
+
 
 		// scale to long side
 		if (is_numeric($params['longside']))
@@ -244,13 +249,15 @@ class img
 		// id src width & height = dst by-pass
 		if ($src['width'] === $dst['width'] && $src['height'] === $dst['height'])
 		{
-			return "<img src=\"{$this->ci->config->config['img']['base_url']}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			$temp = pathinfo($source);
+			return '<img src="' . base_url($temp['dirname'] . "/" . basename($dst['file'])) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
 		}
+
 
 		// if file exists - return img info
 		if (file_exists($dst['file']) AND $params['nocache'] !== TRUE)
 		{
-			return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$params['width']}\" height=\"{$params['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
 		}
 
 		$this->_memory_prepare($info);
@@ -319,7 +326,7 @@ class img
 
 			$bgcolor = imagecolorallocate($dst['image'], $params['r'], $params['g'], $params['b']);
 			imagefill($dst['image'], 0, 0, $bgcolor);
-			imagecopyresized($dst['image'], $currimg, $dst_off_w, $dst_off_h, 0, 0, $dst['width'], $dst['height'], $dst['width'], $dst['height']);
+			imagecopyresampled($dst['image'], $currimg, $dst_off_w, $dst_off_h, 0, 0, $dst['width'], $dst['height'], $dst['width'], $dst['height']);
 			$dst['width']  = $params['height'];
 			$dst['height'] = $params['width'];
 
@@ -347,7 +354,13 @@ class img
 		imagedestroy($dst['image']);
 		imagedestroy($src['image']);
 
-		return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+		if ($params['return'] === TRUE) {
+			return $this->ci->config->config['img']['base_url'] . $dir . "/" . basename($dst['file']);
+		} else {
+			return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+		}
+
+
 
 	}
 
@@ -442,7 +455,7 @@ class img
 	 */
 	private function _memory_prepare($image)
 	{
-		$memoryNeeded = ceil(($image[0] * $image[1] * $image["bits"]) / (1024 * 1024));
+		$memoryNeeded = ceil(($image[0] * $image[1] * $image['bits']) / (1024 * 1024));
 		$memoryNeeded += ($memoryNeeded * 0.05);
 		$memoryAvailble = intval(ini_get('memory_limit'));
 		//      echo "<br>memory avaible = $memoryAvailble";
