@@ -15,6 +15,7 @@
 
     $config['base_path'] = FCPATH . 'assets/img';
     $config['base_url'] = 'assets/img';
+    $config['sharpen'] = TRUE;
 
 
 // End of file img.php
