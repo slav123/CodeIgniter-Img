@@ -11,7 +11,7 @@
  * Location: http://github.com/slav123/CodeIgniter-Img
  *
  * Created:  07-02-2011
- * Last update: 14-04-2014
+ * Last update: 26-02-2013
  *
  * Description:  CodeIgniter library to generate high quality thumbnails
  *
@@ -118,8 +118,6 @@ class img
 		{
 			$params['alt'] = htmlentities($params['alt']);
 		}
-
-
 
 
 		// scale to long side
@@ -257,6 +255,11 @@ class img
 		// if file exists - return img info
 		if (file_exists($dst['file']) AND $params['nocache'] !== TRUE)
 		{
+			if ($params['longside'] || $params['shortside']) {
+				$params['width'] = $dst['width'];
+				$params['height'] = $dst['height'];
+			}
+			
 			return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$params['width']}\" height=\"{$params['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
 		}
 
