@@ -11,7 +11,7 @@
  * Location: http://github.com/slav123/CodeIgniter-Img
  *
  * Created:  07-02-2011
- * Last update: 26-02-2013
+ * Last update: 03-06-2013
  *
  * Description:  CodeIgniter library to generate high quality thumbnails
  *
@@ -67,7 +67,7 @@ class img
 
 		if (! is_file($source))
 		{
-			return '<img src="http://placehold.it/' . $params['width'] . 'x' . $params['height'] . '" width="'.$params['width'].'" height="'.$params['height'].'" alt="noimage">';
+			return '<img src="http://placehold.it/' . $params['width'] . 'x' . $params['height'] . '" width="'.$params['width'].'" height="'.$params['height'].'" alt="noimage '.$source.'">';
 			die();
 		}
 
@@ -248,7 +248,12 @@ class img
 		if ($src['width'] === $dst['width'] && $src['height'] === $dst['height'])
 		{
 			$temp = pathinfo($source);
-			return '<img src="' . base_url($temp['dirname'] . "/" . basename($dst['file'])) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			if ($params['return']) {
+				base_url($temp['dirname'] . "/" . basename($dst['file']));
+			} else {
+				return '<img src="' . base_url($temp['dirname'] . "/" . basename($dst['file'])) . "\" width=\"{$dst['width']}\" height=\"{$dst['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			}
+
 		}
 
 
@@ -259,8 +264,12 @@ class img
 				$params['width'] = $dst['width'];
 				$params['height'] = $dst['height'];
 			}
-			
-			return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$params['width']}\" height=\"{$params['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			if ($params['return']) {
+				return "{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']);
+			} else {
+				return "<img src=\"{$this->ci->config->config['img']['base_url']}{$dir}/" . basename($dst['file']) . "\" width=\"{$params['width']}\" height=\"{$params['height']}\" alt=\"{$params['alt']}\" {$extra_parameters}/>";
+			}
+
 		}
 
 		$this->_memory_prepare($info);
