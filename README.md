@@ -2,14 +2,17 @@
 
 Simple CodeIgniter library to generate high quality thumbnails
 ___
-Hey everybody,
-
 Library is based on excellent * Smarty plugin "Thumb" * created in 2005 by Christoph Erdmann. 
 
 My version is a little bit different, I'm using core from Thumb, and some modification which gives me more flexibility to work with it.
 
-## DOCUMENTATION:
-Documentation is located at <https://www.spidersoft.com.au/projects/codeigniter-img-thumbnails-on-the-fly/>
+## Features
+- thumbnails are generated “on the fly” no additional actions required,
+- cache for generated thumbnails,
+- a clear structure for generated thumbnails,
+- thumbnails sharpening function,
+- cropping function,
+- fill space function
 
 ## INSTALLATION:
 Upload img.php file to _application/libraries/_, upload _config/img.php_ to application/config folder. 
